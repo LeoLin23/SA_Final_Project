@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>User Course</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	<!--[if lte IE 8]><script src="js/html5shiv.js"></script><![endif]-->
+	<script src="statics/js/jquery.min.js"></script>
+	<script src="statics/js/skel.min.js"></script>
+	<script src="statics/js/skel-layers.min.js"></script>
+	<script src="statics/js/init.js"></script>
+	<link rel="stylesheet" href="statics/css/skel.css" />
+	<link rel="stylesheet" href="statics/css/style.css" />
+	<link rel="stylesheet" href="statics/css/style-xlarge.css" />
+</head>
+
+<body>
+	<header id="header" class="skel-layers-fixed">
+		<a href="index.html"><img src="statics/images/home.png" width="50px"></a>
+		<nav id="nav">
+			<ul>
+				<li><a href="login.html">登入</a></li>
+				<li><a href="register_admin.html">管理員註冊</a></li>
+				<script type="text/javascript">
+					var user_id = localStorage.getItem("user_id");
+					document.write('<li><a href="edit_user.html">修改個人資料</a></li>');
+					document.write('<li><a href="cart.html" class="button fit">購物車</a></li>');
+				</script>
+			</ul>
+		</nav>
+	</header>
+
+	<section id="one" class="wrapper style1">
+		<header class="major">
+			<h2>已購課程列表</h2>
+			<p>浪漫 優質</p>
+		</header>
+	</section>
+	<div class="album py-5 bg-light">
+		<div class="container">
+			<div id="course_panel" class="row">
+				
+			</div>
+		</div>
+	</div>
+
+	<script>
+		var user_id = localStorage.getItem("user_id");
+
+		function getAllCourse() {
+			$.ajax({
+				type: "GET",
+				url: "api/user.do",
+				crossDomain: true,
+				data: {
+					"id": user_id,
+					intent: 'GET_COURSE'
+				},
+				cache: false,
+				dataType: 'json',
+				timeout: 5000,
+				success: function (response) {
+					if (response.status == 200) {
+						var course_panel = '';
+
+						$.each(response.response.data, function () {
+							course_panel += addCourse(this);
+						})
+
+						$("#course_panel").append(course_panel);
+					}
+				},
+				error: function () {
+					alert("Server error from getAllCourse()");
+				}
+			});
+		}
+
+		getAllCourse();
+
+		function addCourse(data) {
+			let inner_html = '';
+			//inner_html += '<div class="container">';
+			//inner_html += '<div class="row">';
+			inner_html += '<div class="4u">';
+			inner_html += '<section class="special box">';
+			inner_html += '<a href="course.html?course_id=' + data.id + '" name="detail"><img src="statics/images/course/' + data.cover + '" width="300" height="250" border="0"></a>';
+			inner_html += '<h4>' + data.name + '</h4>';
+			//inner_html += '<img src="statics/images/course/' + data.cover + '" alt="course cover" " width="250px" >';
+			inner_html += '<h1> ' + data.price + '</h1>';
+			//inner_html += '<a href="course_test.html?user_id='+ user_id + '&course_id=' + data.id + '" name="detail">詳細課程資訊</a>';
+			//inner_html += '<a href="course_test.html?course_id=' + data.id + '" name="detail">詳細課程資訊</a>';
+			inner_html += '</section>';
+			inner_html += '</div></div></div>';
+
+			return inner_html;
+		}
+
+
+	</script>
+</body>
+
+</html>

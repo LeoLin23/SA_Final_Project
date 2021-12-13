@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>更新資料</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="description" content="" />
+		<meta name="keywords" content="" />
+		<!--[if lte IE 8]><script src="js/html5shiv.js"></script><![endif]-->
+		<script src="statics/js/jquery.min.js"></script>
+		<script src="statics/js/skel.min.js"></script>
+		<script src="statics/js/skel-layers.min.js"></script>
+		<script src="statics/js/init.js"></script>
+		<link rel="stylesheet" href="statics/css/skel.css"/>
+		<link rel="stylesheet" href="statics/css/style.css"/>
+		<link rel="stylesheet" href="statics/css/style-xlarge.css"/>
+</head>
+
+<body>
+	<header id="header" class="skel-layers-fixed">
+		<a id="home_page" href="index.html"><img src="statics/images/home.png" width="50px"></a> 
+    	<nav id="nav">
+            <!-- 依登入者權限顯示相應的nav bar -->
+            <ul id="nav_list"></ul>
+        </nav>
+	</header>
+    <div id="container">
+        <div id="content">
+            <section id="one" class="wrapper style1">
+				<header class="major">
+					<h2>更新資料</h2>
+				</header>
+			</section>
+
+             <form id="form" accept-charset="utf-8">
+                <div style="display:none;"><input type="hidden" name="_method" value="POST"></div>
+                
+                 <div style="width:500px;margin:0px auto;text-align:center;line-height:20px;margin-bottom:20px" class="input password required">
+                    <label for="user_name"style="font-size:20px">姓名</label>
+                    <input name="name" maxlength="30" type="text" id="user_name" required="required">
+                </div>
+                
+                <div style="width:500px;margin:0px auto;text-align:center;line-height:20px;margin-bottom:20px" class="input email required">
+                    <label for="user_email"style="font-size:20px">E-mail</label>
+                    <input name="email" maxlength="50" type="email" id="user_email" required="required" readonly>
+                </div>
+                
+                <div style="width:500px;margin:0px auto;text-align:center;line-height:20px;margin-bottom:20px" class="input password required">
+                    <label for="user_password"style="font-size:20px">密碼</label>
+                    <input name="password" maxlength="30" type="password" id="user_password" required="required">
+                </div>
+                
+                <div align="center" style="margin-top:50px" class="submit">
+                	<input type="button" value="更新" id="submit">
+                </div>
+            </form>
+			
+            <script type="text/javascript">
+                var id = localStorage.getItem("user_id");
+                
+                // 未登入提醒
+                if(!id){
+                	alert("你根本沒登入你是要更新什麼啦???");
+                	alert("去登入啦= =");
+                	window.location.href = "login.html";
+                }
+                
+                var sql_num = 0;
+
+                function updateUser(id) {
+                    var name = $('#user_name').val();
+                    var email = $('#user_email').val();
+                    var password = $('#user_password').val();
+
+                    var password_rule = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
+                    if(!password_rule.test(password)) {
+                        alert("密碼格式不符，長度至少8，且至少包含一個數字和英文字母！");
+                    }
+                    else {
+                        // 將資料組成JSON格式
+                        var data_object = {
+                            "id": id,
+                            "name": name,
+                            "email": email,
+                            "password": password
+                        };
+
+                        // 將JSON格式轉換成字串
+                        var data_string = JSON.stringify(data_object);
+
+                        // 發出PUT請求
+                        $.ajax({
+                                type: "PUT",
+                                url: "api/user.do",
+                                data: data_string,
+                                crossDomain: true,
+                                cache: false,
+                                dataType: 'json',
+                                timeout: 5000,
+                                success: function (response) {
+                                    if(response.status == 200){
+                                    	alert("更新成功");
+                                     	window.location.href = "index.html";
+                                    } else {
+                                    	alert(response.message);
+                                    }
+                                },
+                                error: function () {
+                                    alert("更新失敗!");
+                                }
+                        });
+                    }
+                }
+
+
+                function getUser() {
+                    $.ajax({
+                        type: "GET",
+                        url: "api/user.do",
+                        crossDomain: true,
+                        data: "id=" + id,
+                        cache: false,
+                        dataType: 'json',
+                        timeout: 5000,
+                        success: function (response) {
+                            if(response.status == 200){
+                             document.getElementById('user_name').value = response['response']['data'][0]['name'];
+                             document.getElementById('user_email').value = response['response']['data'][0]['email'];
+                             document.getElementById('user_password').value = response['response']['data'][0]['password'];
+                            }
+                            console.log(response);
+                        },
+                        error: function () {
+                            alert("無法連線到伺服器！");
+                        }
+                    });
+                }
+
+                $('#submit').click(function() {
+                    updateUser(id);                		
+                });
+                
+                $(document).ready(function() {
+                	var identity = window.localStorage.getItem("identity");
+                    var innerHTML_nav = '';
+                    
+                    if (identity == 1) {
+                    	innerHTML_nav += '<li><a href="login.html">登入</a></li>';
+                        innerHTML_nav += '<li><a href="edit_user.html">修改個人資料</a></li>';
+                        innerHTML_nav += '<li><a href="add_course.html">新增課程</a></li>';
+                        innerHTML_nav += '<li><a href="user_list.html">會員清單</a></li>';
+                    } else {
+                    	innerHTML_nav += '<li><a href="login.html">登入</a></li>';
+                    	innerHTML_nav += '<li><a href="user_course.html">已購課程</a></li>';
+                        innerHTML_nav += '<li><a href="edit_user.html">修改個人資料</a></li>';
+                        innerHTML_nav += '<li><a href="cart.html">購物車</a></li>';
+                    }
+
+                    $("#nav_list").append(innerHTML_nav);
+                	
+                	
+                 // 發出GET的AJAX請求取得原本該會員的資料
+                    getUser();
+                });
+            </script>
+        </div>
+    </div>
+</body>
+
+</html>

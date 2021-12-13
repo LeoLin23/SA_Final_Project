@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>新增課程</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<meta name="description" content="" />
+		<meta name="keywords" content="" />
+		<!--[if lte IE 8]><script src="js/html5shiv.js"></script><![endif]-->
+		<script src="statics/js/jquery.min.js"></script>
+		<script src="statics/js/skel.min.js"></script>
+		<script src="statics/js/skel-layers.min.js"></script>
+		<script src="statics/js/init.js"></script>
+		<link rel="stylesheet" href="statics/css/skel.css"/>
+		<link rel="stylesheet" href="statics/css/style.css"/>
+		<link rel="stylesheet" href="statics/css/style-xlarge.css"/>
+		<style>
+		/* Chrome, Safari, Edge, Opera */
+		input::-webkit-outer-spin-button,
+		input::-webkit-inner-spin-button {
+		  -webkit-appearance: none;
+		  margin: 0;
+		}
+		
+		/* Firefox */
+		input[type=number] {
+		  -moz-appearance: textfield;
+		}
+		</style>
+</head>
+
+<body>
+	<header id="header" class="skel-layers-fixed">
+		<a href="index.html"><img src="statics/images/home.png" width="50px"></a>
+		<nav id="nav">
+			<ul id="nav_list">								
+			</ul>
+		</nav>
+	</header>
+    <div id="container">
+        
+        <div id="content">
+        	<section id="one" class="wrapper style1">
+				<header class="major">
+					<h2>新增課程</h2>
+				</header>
+			</section>  
+            
+            <form id="form" accept-charset="utf-8">
+                <div style="display:none;"><input type="hidden" name="_method" value="POST"></div>
+                <div style="width:250px;margin:0px auto;text-align:center;line-height:20px;margin-bottom:40px" class="input text required">
+                    <label for="course_name"style="font-size:20px">課程名稱</label>
+                    <input name="name" maxlength="30" type="text" id="course_name" required="required">
+                </div>
+                
+                <div style="width:500px;margin:0px auto;text-align:center;line-height:20px;margin-bottom:40px" class="input email required">
+                    <label for="course_price"style="font-size:20px">課程價格</label>
+                    <input name="price" maxlength="10" type="number" id="course_price" required="required">
+                </div>
+                
+                <div style="width:500px;margin:0px auto;text-align:center;line-height:20px;margin-bottom:40px" class="input password required">
+                    <label for="course_desc"style="font-size:20px">課程說明</label>
+                    <textarea name="desc" maxlength="256" cols="50" rows="10" id="course_desc"  required="required"></textarea>
+                </div>
+                <div style="width:500px;margin:0px auto;text-align:center;line-height:20px;margin-bottom:40px" class="input password required">
+                    <label for="cover_path"style="font-size:20px">封面圖片</label>
+                    <input name="cover" maxlength="256" type="text" id="cover_path" required="required">
+                </div>
+                <div style="width:500px;margin:0px auto;text-align:center;line-height:20px;margin-bottom:40px" class="input password required">
+                    <label for="material_path"style="font-size:20px">課程連結</label>
+                    <input name="material" maxlength="256" type="text" id="material_path" required="required">
+                </div>
+                
+                <div align="center" style="margin-top:50px" class="submit">
+                	<input type="button" value="新增課程" id="submit">
+                </div>
+            </form>
+            
+            <script type="text/javascript">
+                $(document).ready(function() {
+                	var identity = window.localStorage.getItem("identity");
+                    var innerHTML_nav = '';
+                    
+                    if (identity == 1) {
+                    	innerHTML_nav += '<li><a href="login.html">登入</a></li>';
+                        innerHTML_nav += '<li><a href="edit_user.html">修改個人資料</a></li>';
+                        innerHTML_nav += '<li><a href="user_list.html">會員清單</a></li>';
+                        innerHTML_nav += '<li><a href="order.html">訂單列表</a></li>';
+                    } else {
+                    	innerHTML_nav += '<li><a href="login.html">登入</a></li>';
+                    	innerHTML_nav += '<li><a href="user_course.html">已購課程</a></li>';
+                        innerHTML_nav += '<li><a href="edit_user.html">修改個人資料</a></li>';
+                        innerHTML_nav += '<li><a href="cart.html">購物車</a></li>';
+                    }
+
+                    $("#nav_list").append(innerHTML_nav);
+                	
+                    // 處理表單點擊事件
+                    var $form = $('#submit');
+                    $form.click(function() {
+                        submit();
+                    });
+                    
+                    function validData(data) {
+        				if (data["name"] == "" || data['price'] == "" || data["desc"] == "" || data["cover"] == "" || data["material"] == "") {
+        					alert("必填寫欄位不得有空值！");
+        				} else return true;
+
+        				return false;
+        			}
+
+                    function submit() {
+                        var name = $('#course_name').val();
+                        var price = $('#course_price').val();
+                        var desc = $('#course_desc').val();
+                        var cover = $('#cover_path').val();
+                        var material = $('#material_path').val();
+
+
+                        // 將資料組成JSON格式
+                        var data_object = {
+                            "name": name,
+                            "price": price,
+                            "desc": desc,
+                            "cover": cover,
+                            "material": material
+                        };
+                        
+                        var isValid = validData(data_object);
+						if (isValid) {		
+	                        // 將JSON格式轉換成字串
+	                        var data_string = JSON.stringify(data_object);
+							console.log(data_string);
+							
+	                        // 發出POST的AJAX請求
+	                        $.ajax({
+	                                type: "POST",
+	                                url: "api/course.do",
+	                                data: data_string,
+	                                crossDomain: true,
+	                                cache: false,
+	                                dataType: 'json',
+	                                timeout: 5000,
+	                                success: function (response) {
+	                                    if(response.status == 200){
+	                                    	alert("新增成功!");
+	                                    	window.location.href = "index.html";
+	                                    }
+	                                },
+	                                error: function (e) {
+	                                	console.log(e);
+	                                    alert("Server error from submit()");
+	                                }
+	                        });
+						}
+                    }
+                });
+            </script>
+
+        </div>
+    </div>
+
+</body>
+
+</html>

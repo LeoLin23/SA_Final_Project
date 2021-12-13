@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>會員註冊</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <!--[if lte IE 8]><script src="js/html5shiv.js"></script><![endif]-->
+    <script src="statics/js/jquery.min.js"></script>
+    <script src="statics/js/skel.min.js"></script>
+    <script src="statics/js/skel-layers.min.js"></script>
+    <script src="statics/js/init.js"></script>
+    <link rel="stylesheet" href="statics/css/skel.css" />
+    <link rel="stylesheet" href="statics/css/style.css" />
+    <link rel="stylesheet" href="statics/css/style-xlarge.css" />
+</head>
+
+<body>
+    <header id="header" class="skel-layers-fixed">
+        <a href="index.html"><img src="statics/images/home.png" width="50px"></a>
+        <nav id="nav">
+            <ul>
+                <li><a href="login.html">登入</a></li>
+                <li><a href="register_admin.html">管理員註冊</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div id="container">
+
+        <div id="content">
+            <section id="one" class="wrapper style1">
+                <header class="major">
+                    <h2>會員註冊</h2>
+                    <p>享受學習的樂趣</p>
+                </header>
+            </section>
+            <div id="flashMessage" class="message" style="display: none;"></div>
+
+            <form id="form" accept-charset="utf-8">
+                <div style="display:none;"><input type="hidden" name="_method" value="POST"></div>
+                <div style="width:250px;margin:0px auto;text-align:center;line-height:20px;margin-bottom:20px"
+                    class="input text required">
+                    <label for="user_name" style="font-size:20px">姓名</label>
+                    <input name="name" maxlength="30" type="text" id="user_name" required="required">
+                </div>
+
+                <div style="width:500px;margin:0px auto;text-align:center;line-height:20px;margin-bottom:20px"
+                    class="input email required">
+                    <label for="user_email" style="font-size:20px">E-mail</label>
+                    <input name="email" maxlength="50" type="email" id="user_email" required="required">
+                </div>
+
+                <div style="width:500px;margin:0px auto;text-align:center;line-height:20px;margin-bottom:20px"
+                    class="input password required">
+                    <label for="user_password" style="font-size:20px">密碼</label>
+                    <input name="password" maxlength="30" type="password" id="user_password" required="required">
+                </div>
+
+                <div align="center" style="margin-top:50px" class="submit">
+                    <input type="button" value="註冊" id="submit">
+                </div>
+            </form>
+
+            <script type="text/javascript">
+                $(document).ready(function () {
+                    // 處理表單點擊事件
+                    var $form = $('#submit');
+                    $form.click(function () {
+                        submit();
+                    });
+
+                    function submit() {
+                        var name = $('#user_name').val();
+                        var email = $('#user_email').val();
+                        var password = $('#user_password').val();
+                        const identity = 0;
+                        const fun = 1;
+
+                        var email_rule = /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
+                        var password_rule = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
+                        if (!email_rule.test(email)) {
+                            alert("Email格式不符！");
+                        }
+                        else if (!password_rule.test(password)) {
+                            alert("密碼格式不符，長度至少8，且至少包含一個數字和英文字母！");
+                        }
+                        else {
+                            // 將資料組成JSON格式
+                            var data_object = {
+                                "name": name,
+                                "email": email,
+                                "password": password,
+                                "identity": identity,
+                                "function": fun
+                            };
+
+                            // 將JSON格式轉換成字串
+                            var data_string = JSON.stringify(data_object);
+                            console.log(data_string);
+
+                            // 發出POST的AJAX請求
+                            $.ajax({
+                                type: "POST",
+                                url: "api/user.do",
+                                data: data_string,
+                                crossDomain: true,
+                                cache: false,
+                                dataType: 'json',
+                                timeout: 5000,
+                                success: function (response) {
+                                    if (response.status == 200) {
+                                        alert("註冊成功!");
+                                        window.location.href = "index.html";
+                                    }
+                                },
+                                error: function (e) {
+                                    console.log(e);
+                                    alert("Server error from submit()");
+                                }
+                            });
+                        }
+                    }
+                });
+            </script>
+
+        </div>
+    </div>
+
+</body>
+
+</html>

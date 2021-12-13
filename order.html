@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8">
+	<title>訂單列表</title>
+
+	<!-- <script src="statics/js/jquery-3.4.1.min.js"></script> -->
+	<script src="statics/js/jquery.min.js"></script>
+	<script src="statics/js/skel.min.js"></script>
+	<script src="statics/js/skel-layers.min.js"></script>
+	<script src="statics/js/init.js"></script>
+	<link rel="stylesheet" href="statics/css/skel.css" />
+	<link rel="stylesheet" href="statics/css/style.css" />
+	<link rel="stylesheet" href="statics/css/style-xlarge.css" />
+</head>
+
+<body>
+	<header id="header" class="skel-layers-fixed">
+		<a href="index.html"><img src="statics/images/home.png" width="50px"></a>
+		<nav id="nav">
+			<!-- 依登入者權限顯示相應的nav bar -->
+			<ul id="nav_list"></ul>
+		</nav>
+
+	</header>
+
+	<h2>訂單列表</h2>
+
+	<div class="container">
+		<div class="content">
+			<table id="table">
+				<thead>
+					<tr>
+						<th style="text-align:center;">訂單編號</th>
+						<th style="text-align:center;">會員編號</th>
+						<th style="text-align:center;">建立時間</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+	<script>
+		$(document).ready(function () {
+			var user_id = window.localStorage.getItem("user_id");
+			var identity = window.localStorage.getItem("identity");
+			var innerHTML = '<li><a href="login.html">登入</a></li>';
+			if (identity == 1) {
+				innerHTML += '<li><a href="edit_user.html">更新資料</a></li>';
+				innerHTML += '<li><a href="add_course.html">新增課程</a></li>';
+				innerHTML += '<li><a href="user_list.html">會員清單</a></li>';
+			} else {
+				innerHTML += '<li><a href="edit_user.html">更新資料</a></li>';
+				innerHTML += '<li><a href="cart.html">購物車</a></li>';
+			}
+			$("#nav_list").append(innerHTML);
+
+			getAllOrderData();
+		});
+
+		function getAllOrderData() {
+			$.ajax({
+				type: "GET",
+				url: "api/order.do",
+				crossDomain: true,
+				cache: false,
+				dataType: 'json',
+				timeout: 5000,
+				success: function (response) {
+					if (response.status == 200) {
+						updateTable(response.response.data);
+					}
+				},
+				error: function () {
+					alert("無法連線到伺服器！");
+				}
+			});
+		}
+
+		// 更新訂單列表
+		function updateTable(data) {
+			var table_html = '';
+			$.each(data, function (index, value) {
+				table_html += '<tr><td>' + value['order_id'] + '</td>';
+				table_html += '<td>' + value['user_name'] + '</td>';
+				table_html += '<td>' + value['order_date'] + '</td></tr>';
+			})
+
+			$("#table > tbody").append(table_html);
+		}
+	</script>
+
+</body>
+<style>
+	h2 {
+		font-weight: bold;
+		font-size: 40px;
+		text-align: center;
+		margin: 10px;
+	}
+	
+	tr {
+		text-align: center;
+	}
+</style>
+
+</html>

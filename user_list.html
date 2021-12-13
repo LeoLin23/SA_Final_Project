@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>會員清單</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    <!--[if lte IE 8]><script src="js/html5shiv.js"></script><![endif]-->
+    <script src="statics/js/jquery.min.js"></script>
+    <script src="statics/js/skel.min.js"></script>
+    <script src="statics/js/skel-layers.min.js"></script>
+    <script src="statics/js/init.js"></script>
+    <link rel="stylesheet" href="statics/css/skel.css" />
+    <link rel="stylesheet" href="statics/css/style.css" />
+    <link rel="stylesheet" href="statics/css/style-xlarge.css" />
+</head>
+
+<body>
+    <header id="header" class="skel-layers-fixed">
+        <a href="index.html"><img src="statics/images/home.png" width="50px"></a>
+        <nav id="nav">
+            <ul id="nav_list">
+                <li><a href="register_user.html">會員註冊</a></li>
+                <li><a href="register_admin.html">管理員註冊</a></li>
+            </ul>
+        </nav>
+    </header>
+    <div id="container">
+        <div id="content">
+            <table id="table">
+                <thead>
+                    <tr>
+                        <th>編號</th>
+                        <th>姓名</th>
+                        <th>電郵</th>
+                        <th>管理員</th>
+                        <th>註冊時間</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+            <script type="text/javascript">
+                function deleteUser(id) {
+                    var check = window.confirm("確認刪除會員？");
+                    if (check == true) {
+                        console.log("You pressed OK!");
+                        var request = { 'id': id };
+                        var data_string = JSON.stringify(request);
+
+                        $.ajax({
+                            type: "DELETE",
+                            url: "api/user.do",
+                            crossDomain: true,
+                            data: data_string,
+                            cache: false,
+                            dataType: 'json',
+                            timeout: 5000,
+                            success: function (response) {
+                                if (response.status == 200) {
+                                    alert("成功刪除會員");
+                                    getAllUser();
+                                    window.location.reload();
+                                }
+                            },
+                            error: function () {
+                                alert("error from deleteUser()");
+                            }
+                        });
+                    }
+                    else {
+                        console.log("You pressed Cancel!");
+                    }
+                }
+
+                function getAllUser() {
+                    // 請求取得所有會員列表
+                    $.ajax({
+                        type: "GET",
+                        url: "api/user.do",
+                        crossDomain: true,
+                        cache: false,
+                        dataType: 'json',
+                        timeout: 5000,
+                        success: function (response) {
+                            if (response.status == 200) {
+                                updateTable(response.response.data);
+                            }
+                            console.log(response);
+                        },
+                        error: function () {
+                            alert("error from getAllUser()");
+                        }
+                    });
+                }
+
+                // 更新會員列表表格
+                function updateTable(data) {
+                    $("#table > tbody").empty();
+                    var table_html = '';
+                    $.each(data, function (index, value) {
+                        table_html += '<tr><td scope="row">' + value['id'] + '</td>';
+                        table_html += '<td>' + value['name'] + '</td>';
+                        table_html += '<td>' + value['email'] + '</td>';
+                        table_html += '<td>' + value['identity'] + '</td>';
+                        table_html += '<td>' + value['register_date'] + '</td>';
+                        table_html += '<td>' + '<a href="javascript: deleteUser(' + value['id'] + ');">刪除</a></td></tr>';
+
+                    })
+
+                    $("#table > tbody").append(table_html);
+                }
+
+                $(document).ready(function () {
+                	var identity = window.localStorage.getItem("identity");
+                    var innerHTML_nav = '';
+                    
+                    if (identity == 1) {
+                    	innerHTML_nav += '<li><a href="login.html">登入</a></li>';
+                        innerHTML_nav += '<li><a href="edit_user.html">修改個人資料</a></li>';
+                        innerHTML_nav += '<li><a href="add_course.html">新增課程</a></li>';
+                        innerHTML_nav += '<li><a href="order.html">訂單列表</a></li>';
+                    } else {
+                    	innerHTML_nav += '<li><a href="login.html">登入</a></li>';
+                    	innerHTML_nav += '<li><a href="user_course.html">已購課程</a></li>';
+                        innerHTML_nav += '<li><a href="edit_user.html">修改個人資料</a></li>';
+                        innerHTML_nav += '<li><a href="cart.html">購物車</a></li>';
+                    }
+
+                    $("#nav_list").append(innerHTML_nav);
+                	
+                    getAllUser();
+                });
+            </script>
+        </div>
+
+    </div>
+</body>
+
+</html>
